@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject private var contentViewVM: ContentViewViewModel
+    @Environment(ContentViewViewModel.self) private var contentViewVM
     @EnvironmentObject private var loginViewVM: LoginViewViewModel
     
     let storageManager = StorageManager.shared
@@ -48,17 +48,18 @@ struct ContentView: View {
         storageManager.logout()
         loginViewVM.userInfo.isLoggedIn.toggle()
         loginViewVM.userInfo.name.removeAll()
+        loginViewVM.validate()
     }
 }
 
 #Preview {
     ContentView()
-        .environmentObject(ContentViewViewModel())
+        .environment(ContentViewViewModel())
         .environmentObject(LoginViewViewModel())
 }
 
 struct ButtonView: View {
-    @ObservedObject var contentViewVM: ContentViewViewModel
+    @Bindable var contentViewVM: ContentViewViewModel
     
     var body: some View {
         Button(action: contentViewVM.startTimer) {

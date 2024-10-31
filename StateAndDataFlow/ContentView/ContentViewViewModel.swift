@@ -6,10 +6,10 @@
 //
 
 import Foundation
-import Combine
+import Observation
 
-final class ContentViewViewModel: ObservableObject {
-    let objectWillChange = ObservableObjectPublisher()
+
+@Observable final class ContentViewViewModel {
     let storageManager = StorageManager.shared
     var counter = 3
     var buttonTitle = "Start"
@@ -32,18 +32,23 @@ final class ContentViewViewModel: ObservableObject {
     
     func logout() {
         storageManager.logout()
-        objectWillChange.send()
     }
     
     @objc private func updateCounter() {
-        if counter > 0 {
-            counter -= 1
-        } else {
-            killTimer()
-            buttonTitle = "Reset"
-        }
         
-        objectWillChange.send()
+        withObservationTracking {
+            
+            if counter > 0 {
+                counter -= 1
+            } else {
+                killTimer()
+                buttonTitle = "Reset"
+            }
+        } onChange: {
+            print("edited")
+        }
+
+        
     }
     
     private func killTimer() {
@@ -52,14 +57,19 @@ final class ContentViewViewModel: ObservableObject {
     }
     
     private func buttonDidTapped() {
-        if buttonTitle == "Reset" {
-            counter = 3
-            buttonTitle = "Start"
-        } else {
-            buttonTitle = "Wait..."
+        withObservationTracking {
+            if buttonTitle == "Reset" {
+                counter = 3
+                buttonTitle = "Start"
+            } else {
+                buttonTitle = "Wait..."
+            }
+        } onChange: {
+            print("Edited 2")
         }
+
         
-        objectWillChange.send()
+        
     }
     
 }
